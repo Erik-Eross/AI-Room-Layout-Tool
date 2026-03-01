@@ -1,0 +1,6 @@
+Things to get done:
+- make the objects (like table) match the grid size they take up
+- make the objects able to rotate and interactable (to delete and edit)
+- camera zoom and positioning from the start
+- make preview objects more faded and not solid colour
+- make walls and the ones in front of the camera to disappear or fade
