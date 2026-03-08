@@ -3,7 +3,9 @@ using Unity.Cinemachine;
 
 public class OrbitCamera : MonoBehaviour
 {
+    [Header("Camera Reference")]
     public CinemachineCamera cam;
+    
     [Header("Zoom")]
     public float minFov = 20f;
     private float maxFov;
@@ -48,10 +50,10 @@ public class OrbitCamera : MonoBehaviour
     {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         
-        // only zoom if the input is large enough
+        //only zoom if the input is large enough
         if (Mathf.Abs(scroll) > 0.0001f && cam != null)
         {
-            //controls field of view
+            //controls field of view (FOV)
             var lens = cam.Lens;
             lens.FieldOfView -= scroll * zoomSensitivity * 5f;
             lens.FieldOfView = Mathf.Clamp(lens.FieldOfView, minFov, maxFov);

@@ -1,15 +1,20 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    public static String currentState;
+    [Header("Object References")]
     public GameObject mainUI;
     public GameObject objectEditUI;
     public GameObject rotateUI;
 
+    [Header("Current UI State")]
+    public static String currentState;
+
     void Update()
     {
+        //switches between the current UI states (changed in other scripts)
         switch(currentState)
         {
             case "main":
@@ -26,6 +31,7 @@ public class UIManager : MonoBehaviour
 
     void SetObjectState(GameObject[] uiObjects, bool[] state)
     {
+        //turns gameobjects on and off
         for(int i = 0; i < uiObjects.Length; i++)
         {
             uiObjects[i].SetActive(state[i]);

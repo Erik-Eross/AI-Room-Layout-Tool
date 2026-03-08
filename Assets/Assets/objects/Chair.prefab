@@ -451,14 +451,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   furnitureId: Chair
-  symbol: 67
+  symbol: Chair
   w: 1
   h: 1
   xPos: 1
   yPos: 1
   rotation: 0
   canInteract: 0
-  objectPlaced: 1
+  objectPlaced: 0
   furniturePrefab: {fileID: 0}
 --- !u!1 &8771953549983580348
 GameObject:

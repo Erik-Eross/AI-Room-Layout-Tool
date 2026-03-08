@@ -244,7 +244,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8605801540581462339}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.38268346, z: 0, w: 0.9238795}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.0167067, y: -0.075926945, z: -3.5736258}
   m_LocalScale: {x: 1.4086218, y: 0.02868344, z: 1.4022417}
   m_ConstrainProportionsScale: 0
@@ -342,7 +342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   furnitureId: Table
-  symbol: 84
+  symbol: Table
   w: 2
   h: 2
   xPos: 0
