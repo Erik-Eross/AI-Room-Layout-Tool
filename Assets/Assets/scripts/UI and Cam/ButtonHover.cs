@@ -7,15 +7,8 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler//, IPointerExitHa
     public string objectType;
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("Hover ON: " + gameObject.name);
+        //Debug.Log("Hover ON: " + gameObject.name);
 
         objectSelectMenu.menuType = objectType;
     }
-
-    // public void OnPointerExit(PointerEventData eventData)
-    // {
-    //     Debug.Log("Hover OFF: " + gameObject.name);
-
-    //     objectSelectMenu.menuType = "";
-    // }
 }

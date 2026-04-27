@@ -1,6 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class EditObjects : MonoBehaviour
 {
@@ -29,8 +30,8 @@ public class EditObjects : MonoBehaviour
         {
             //grabs the details from the script of the furniture we are hovering over
             FurnitureInfo furnitureInfo = hit.transform.GetComponent<FurnitureInfo>();
-            
-            if (hit.transform.tag == "Furniture" && furnitureInfo != null 
+
+            if (hit.transform.tag == "Furniture" && furnitureInfo != null && !IsPointerOverUI()
                 && furnitureInfo.canInteract && placementManagerScript.chosenPrefab == null)
             {
                 hoveringObject = true;
@@ -39,7 +40,7 @@ public class EditObjects : MonoBehaviour
                 objectSelectMenu.menuType = "";
 
                 //gives the hovered object a glow to show the user whats happening
-                if(hoveredObject != null && hoveredObject != hit.transform.gameObject)
+                if (hoveredObject != null && hoveredObject != hit.transform.gameObject)
                 {
                     //the object emission color is reset
                     foreach (Renderer mat in hoveredObject.GetComponentsInChildren<Renderer>())
@@ -60,9 +61,9 @@ public class EditObjects : MonoBehaviour
                 }
 
                 //if you left click the object is selected
-                if(Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    if(selectedObject != null)
+                    if (selectedObject != null)
                     {
                         foreach (Renderer mat in selectedObject.GetComponentsInChildren<Renderer>())
                         {
@@ -79,10 +80,10 @@ public class EditObjects : MonoBehaviour
                 }
             }
         }
-        else 
+        else
         {
             //here we reset the object and its emissions
-            if(hoveredObject) 
+            if (hoveredObject)
             {
                 hoveringObject = false;
 
@@ -91,19 +92,19 @@ public class EditObjects : MonoBehaviour
                     mat.material.EnableKeyword("_EMISSION");
                     mat.material.SetColor("_EmissionColor", Color.white * 0f);
                 }
-                
+
                 hoveredObject = null;
             }
         }
 
         //if you right click and have a selected object it will deselect
-        if(Input.GetMouseButtonDown(1) && selectedObject != null)
+        if (Input.GetMouseButtonDown(1) && selectedObject != null)
         {
             selectedObject.SetActive(true);
             Deselect();
         }
 
-        if(selectedObject != null) 
+        if (selectedObject != null)
         {
             //make the object glow again with emission
             Color emissionColor = Color.white * emissionHighlightAmount;
@@ -117,14 +118,15 @@ public class EditObjects : MonoBehaviour
     }
 
     //move UI button when an object is selected
-    public void MoveObjectButton() {
-        if(selectedObject != null)
+    public void MoveObjectButton()
+    {
+        if (selectedObject != null)
         {
             //We reset the UI and the grid to account for the object being moved
             UIManager.currentState = "main";
             FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
             furnitureInfo.AssignInstanceName();
-            gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos, 
+            gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
                 furnitureInfo.w, furnitureInfo.h, ".", "");
             placementManagerScript.chosenPrefab = selectedObject.GetComponent<FurnitureInfo>().furniturePrefab;
             placementManagerScript.chosenPrefab.transform.rotation = selectedObject.transform.rotation;
@@ -134,17 +136,19 @@ public class EditObjects : MonoBehaviour
         }
     }
 
-    public void RotateObjectButton() {
+    public void RotateObjectButton()
+    {
         //sets the UI button states
         UIManager.currentState = "rotate";
     }
 
-    public void DeleteObjectButton() {
-        if(selectedObject != null)
+    public void DeleteObjectButton()
+    {
+        if (selectedObject != null)
         {
             //if an object is selected, it will be deleted and the grid cell will be reset
             FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
-            gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos, 
+            gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
                 furnitureInfo.w, furnitureInfo.h, ".", "");
             hoveringObject = false;
             Destroy(selectedObject);
@@ -153,7 +157,7 @@ public class EditObjects : MonoBehaviour
             GameObject[] allFurniture = GameObject.FindGameObjectsWithTag("Furniture");
 
             //re-assign names of objects when one gets deleted
-            foreach(GameObject furniture in allFurniture)
+            foreach (GameObject furniture in allFurniture)
             {
                 var details = furniture.GetComponent<FurnitureInfo>();
                 details.AssignInstanceName();
@@ -164,7 +168,7 @@ public class EditObjects : MonoBehaviour
     public void LeftRotateButton()
     {
         //rotate the object 45 degrees to the left
-        if(selectedObject != null)
+        if (selectedObject != null)
         {
             SnapRotatePreview(selectedObject, -rotationStep);
         }
@@ -173,7 +177,7 @@ public class EditObjects : MonoBehaviour
     public void RightRotateButton()
     {
         //rotate the object 45 degrees to the right
-        if(selectedObject != null)
+        if (selectedObject != null)
         {
             SnapRotatePreview(selectedObject, rotationStep);
         }
@@ -182,7 +186,7 @@ public class EditObjects : MonoBehaviour
     public void ConfirmRotateButton()
     {
         //if the button is clicked and there is an object selected
-        if(selectedObject != null)
+        if (selectedObject != null)
         {
             FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
             //normalize and snap rotation to the configured step displayed as integer degrees
@@ -194,14 +198,15 @@ public class EditObjects : MonoBehaviour
             else { furnitureInfo.rotation = ""; }
 
             //then fill in the grid and deselect the object
-            gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos, 
+            gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
                 furnitureInfo.w, furnitureInfo.h, furnitureInfo.symbol, furnitureInfo.rotation);
             hoveringObject = false;
             Deselect();
         }
     }
 
-    void Deselect() {
+    void Deselect()
+    {
         //handles reseting the UI and deselecting the object
         UIManager.currentState = "main";
         foreach (Renderer mat in selectedObject.GetComponentsInChildren<Renderer>())
@@ -227,5 +232,10 @@ public class EditObjects : MonoBehaviour
         snapped = Mathf.Repeat(snapped, 360f);
         Vector3 e = obj.transform.eulerAngles;
         obj.transform.eulerAngles = new Vector3(e.x, snapped, e.z);
+    }
+
+    bool IsPointerOverUI()
+    {
+        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
     }
 }

@@ -14,13 +14,14 @@ public class LayoutSaveSystem : MonoBehaviour
     public GameObject chairPrefab;
     public GameObject tablePrefab;
 
-    public void SaveLayout()
+    public void SaveLayout(int saveSlot)
     {
         //find the room layout and all furnitures before saving
         LayoutData layout = new LayoutData();
 
-        layout.roomWidth = gridManager.width;
-        layout.roomHeight = gridManager.height;
+        layout.roomWidth = gridManager.generateWidth;
+        layout.roomHeight = gridManager.generateHeight;
+        layout.timeStamp = DateTime.Now.ToString("dd MMM HH:mm");
 
         GameObject[] allFurniture = GameObject.FindGameObjectsWithTag("Furniture");
 
@@ -48,17 +49,17 @@ public class LayoutSaveSystem : MonoBehaviour
 
         //save the json when all furnitures have been logged
         string json = JsonUtility.ToJson(layout, true);
-        string path = Application.persistentDataPath + "/layout.json";
+        string path = Application.persistentDataPath + "/layout" + saveSlot + ".json";
 
         //write to files and debug to check
         File.WriteAllText(path, json);
         Debug.Log("Layout saved to: " + path);
     }
 
-    public void LoadLayout()
+    public void LoadLayout(int saveSlot)
     {
         //get the path of the JSON file
-        string path = Application.persistentDataPath + "/layout.json";
+        string path = Application.persistentDataPath + "/layout" + saveSlot + ".json";
 
         if (!File.Exists(path))
         {
@@ -72,6 +73,8 @@ public class LayoutSaveSystem : MonoBehaviour
 
         gridManager.width = layout.roomWidth;
         gridManager.height = layout.roomHeight;
+        gridManager.generateWidth = layout.roomWidth;
+        gridManager.generateHeight = layout.roomHeight;
 
         //regenerate the grid and reset the camera position
         gridManager.GenerateGrid();
@@ -162,6 +165,7 @@ public class LayoutData
     public int roomWidth;
     public int roomHeight;
     public List<FurnitureData> furniture = new List<FurnitureData>();
+    public string timeStamp;
 }
 
 [Serializable]

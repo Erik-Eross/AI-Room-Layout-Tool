@@ -11,15 +11,25 @@ if not exist "models" mkdir "models"
 if not exist "bin" mkdir "bin"
 
 REM ---- Download llama.cpp server ----
-set LLAMA_URL=https://github.com/ggerganov/llama.cpp/releases/latest/download/llama-binaries-win-cpu-x64.zip
-set LLAMA_ZIP=bin\llama.zip
+set LLAMA_URL=https://github.com/ggml-org/llama.cpp/releases/download/b7845/llama-b7845-bin-win-cpu-x64.zip
+set LLAMA_ZIP=llama.zip
 
-if not exist "bin\llama-server.exe" (
+if not exist "llama-server.exe" (
     echo Downloading llama.cpp server...
     curl -L --fail -o "%LLAMA_ZIP%" "%LLAMA_URL%"
+    if errorlevel 1 (
+        echo ERROR: Failed to download llama.cpp server.
+        pause
+        exit /b 1
+    )
 
     echo Extracting server...
-    tar -xf "%LLAMA_ZIP%" -C bin
+    tar -xf "%LLAMA_ZIP%"
+    if errorlevel 1 (
+        echo ERROR: Failed to extract llama.cpp server.
+        pause
+        exit /b 1
+    )
 
     del "%LLAMA_ZIP%"
 ) else (

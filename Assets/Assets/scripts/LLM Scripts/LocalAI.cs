@@ -1,18 +1,28 @@
 using UnityEngine;
 using UnityEngine.Networking;
-using System;
 using System.Text;
 using System.Collections;
+using UnityEngine.UI;
 using TMPro;
-using Mono.Cecil;
-using System.Collections.Generic;
-using Unity.Mathematics;
+using UnityEditor.Experimental.GraphView;
 
 public class LocalAI : MonoBehaviour
 {
+    private bool processingRequest;
+
     [Header("UI References")]
-    public TextMeshProUGUI outputText;
     public TMP_InputField inputField;
+    public Animator chatbotOpenAnim;
+
+    [Header("Message Bubbles")]
+    public Transform contentParent;
+    public GameObject aiMessageBubble;
+    public GameObject userMessageBubble;
+    public GameObject loadingMessageBubble;
+    public GameObject aiTimestamp;
+    public GameObject userTimestamp;
+    private GameObject currentLoadingObject;
+    public ScrollRect scrollRect;
 
     //the structure of the request that will be sent to the local AI server
     public class CompletionRequest
@@ -31,26 +41,43 @@ public class LocalAI : MonoBehaviour
         public string response;
     }
 
+    //button to turn on and off the side pannel
+    public void OpenChatOpenStatus(bool isOpen)
+    {
+        chatbotOpenAnim.SetBool("isOpen", isOpen);
+    }
+
     //this will be called when the user presses the button for assistance
     public void AskAI()
     {
-        if(inputField.text != "")
+        if (inputField.text != "" && !processingRequest)
         {
             GridManager gridManager = FindAnyObjectByType<GridManager>();
 
             //checks for user input, gets the room layout, and start a request
-            if(this.enabled)
+            if (this.enabled)
             {
                 StopAllCoroutines();
-                StartCoroutine(SendRequest(gridManager.ToAscii(), 
-                    gridManager.width.ToString() + "x" + 
+                StartCoroutine(SendRequest(gridManager.ToAscii(),
+                    gridManager.width.ToString() + "x" +
                     gridManager.height.ToString(), inputField.text));
-                outputText.text = "Asking the AI for suggestions...";
+
+                processingRequest = true;
+
+                //adds a timestamp bubble
+                AddTimestampMessage("user");
+
+                //adds a bubble to the chatbot and logs the message
+                GameObject userMsg = Instantiate(userMessageBubble, contentParent);
+                TMP_Text text = userMsg.GetComponentInChildren<TMP_Text>();
+                text.text = inputField.text;
+
+                //adds a loading icon while its thinking
+                currentLoadingObject = Instantiate(loadingMessageBubble, contentParent);
+
+                //resize the canvas and force to bottom
+                ForceScrollReset();
             }
-        }
-        else {
-            //if no text was provided
-            outputText.text = "Please enter a question for the AI.";
         }
 
         //clear the chat after each click
@@ -67,13 +94,13 @@ public class LocalAI : MonoBehaviour
             "Room size: " + roomSize + "\n" +
             "ASCII map:\n" + ascii + "\n" +
             "User Input: " + userInput + "\n\n" +
-            "NOTE: the first value of the grid is the top left of the room, all objects base rotation (0 degrees) are facing the bottom of the room by default.\n" + 
+            "NOTE: the first value of the grid is the top left of the room, all objects base rotation (0 degrees) are facing the bottom of the room by default.\n" +
             "Dont give grid coordinates, instead say words like 'top left' or 'middle', to show positioning.\n" +
-            "IMPORTANT: dont refer to furniture as 'Chair1' or 'Chair5' just say Chair, do this for all furniture.\n" + 
+            "IMPORTANT: dont refer to furniture as 'Chair1' or 'Chair5' just say Chair, do this for all furniture.\n" +
             "Please make the advice actually useful dont make any up you cannot see in the ascii map.\n" +
             "Dont just say where the furniture is or give context, the user knows what the room looks like, keep the answer JUST your suggestion.\n" +
             "Give only your answer no context keep it plain english treat it like you are talking to another person just plain english.\n" +
-            "REMEMBER: If the user's question isnt relevant to this task, please mention how it is important to stay relevant.\n" + 
+            "REMEMBER: If the user's question isnt relevant to this task, please mention how it is important to stay relevant.\n" +
             "Answer:\n\n";
         CompletionRequest requestBody = new CompletionRequest
         {
@@ -107,14 +134,61 @@ public class LocalAI : MonoBehaviour
             if (firstLetter > 0)
                 aiText = aiText.Substring(firstLetter);
 
-            outputText.text = "AI Evaluation:\n" + string.Join("\n", aiText);
+            //adds a bubble to the chatbot and logs the message
+            GameObject aiMsg = Instantiate(aiMessageBubble, contentParent);
+            TMP_Text text = aiMsg.GetComponentInChildren<TMP_Text>();
+            text.text = string.Join("\n", aiText);
+            //"AI Evaluation:\n" + string.Join("\n", aiText);
+
+            //resize the canvas and force to bottom
+            ForceScrollReset();
         }
         else
         {
             //shows an error if the AI request fails
             Debug.LogError(req.error);
             Debug.Log(req.downloadHandler.text);
-            outputText.text = "Error: " + req.error;
+
+            //adds a timestamp bubble
+            AddTimestampMessage("ai");
+
+            //removes the loading bar and adds the AI message
+            Destroy(currentLoadingObject);
+            GameObject aiMsg = Instantiate(aiMessageBubble, contentParent);
+            TMP_Text text = aiMsg.GetComponentInChildren<TMP_Text>();
+            text.text = "Error: " + req.error + "\n Please Try Again.";
+
+            //resize the canvas and force to bottom
+            ForceScrollReset();
         }
+
+        //can ask questions again
+        processingRequest = false;
+    }
+
+    public void ForceScrollReset()
+    {
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent as RectTransform);
+
+        scrollRect.verticalNormalizedPosition = 0f;
+        Canvas.ForceUpdateCanvases();
+    }
+
+    void AddTimestampMessage(string type)
+    {
+        string time = System.DateTime.Now.ToString("HH:mm");
+        GameObject stamp;
+
+        if (type == "user")
+        {
+            stamp = Instantiate(userTimestamp, contentParent);
+        }
+        else
+        {
+            stamp = Instantiate(aiTimestamp, contentParent);
+        }
+
+        stamp.GetComponentInChildren<TextMeshProUGUI>().text = time;
     }
 }

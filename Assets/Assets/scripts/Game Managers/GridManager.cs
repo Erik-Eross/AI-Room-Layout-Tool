@@ -4,6 +4,11 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     [Header("Grid Settings")]
+    public bool generatedFirstGrid;
+    public int minDimensionsSize;
+    public int maxDimensionsSize;
+    public int generateWidth;
+    public int generateHeight;
     public int width;
     public int height;
     public float cellSize;
@@ -13,12 +18,26 @@ public class GridManager : MonoBehaviour
     private GameObject lastGridCell;
     public GameObject cellPrefab;
     public GameObject[,] grid;
+    public OrbitCamera orbitCameraScript;
 
     [Header("3D Text Settings")]
     public GameObject threeDTextPrefab;
     public float textHeightOffset = 1f;
 
-    void Start()
+    [Header("Screens and Text")]
+    public GameObject selectSizeScreen;
+    public TextMeshProUGUI widthText;
+    public TextMeshProUGUI heightText;
+
+    public void GridScreenStatus(bool isOn)
+    {
+        if (generatedFirstGrid || isOn)
+        {
+            selectSizeScreen.SetActive(isOn);
+        }
+    }
+
+    public void ConfirmGridSize()
     {
         //once done we generate the grid
         GenerateGrid();
@@ -50,8 +69,8 @@ public class GridManager : MonoBehaviour
     public void Fill(int x, int y, int w, int h, string symbol, string rotation)
     {
         string token;
-        if(rotation == "Rotation: 0°") { token = symbol.ToString(); }
-        else{ token = symbol + rotation; }
+        if (rotation == "Rotation: 0°") { token = symbol.ToString(); }
+        else { token = symbol + rotation; }
 
         //fill the cells with the symbol of the object
         for (int ix = 0; ix < w; ix++)
@@ -95,8 +114,15 @@ public class GridManager : MonoBehaviour
 
     public void GenerateGrid()
     {
+        //set to true so menu can be closed to create a new one
+        generatedFirstGrid = true;
+
         //clear the previous grid if it exists
         ClearGrid();
+
+        //sets the grid and height to the selected number
+        width = generateWidth;
+        height = generateHeight;
 
         cells = new string[width, height];
 
@@ -134,8 +160,8 @@ public class GridManager : MonoBehaviour
         }
 
         //generating top text at the first cell
-        GameObject topTextInstance = Instantiate(threeDTextPrefab, 
-            new Vector3(transform.position.x, transform.position.y, firstGridCell.transform.position.z + textHeightOffset), 
+        GameObject topTextInstance = Instantiate(threeDTextPrefab,
+            new Vector3(transform.position.x, transform.position.y, firstGridCell.transform.position.z + textHeightOffset),
             threeDTextPrefab.transform.rotation, transform);
 
         TextMeshPro topTextMesh = topTextInstance.GetComponent<TextMeshPro>();
@@ -143,16 +169,28 @@ public class GridManager : MonoBehaviour
         //scaling font size based on cell size
         topTextMesh.fontSize = topTextMesh.fontSize * height / 2;
         if (topTextMesh.fontSize > 15) topTextMesh.fontSize = 15;
-    
+
         //generating bottom text at the last cell
-        GameObject bottomTextInstance = Instantiate(threeDTextPrefab, 
-            new Vector3(transform.position.x, transform.position.y, lastGridCell.transform.position.z - textHeightOffset), 
+        GameObject bottomTextInstance = Instantiate(threeDTextPrefab,
+            new Vector3(transform.position.x, transform.position.y, lastGridCell.transform.position.z - textHeightOffset),
             threeDTextPrefab.transform.rotation, transform);
-            
+
         TextMeshPro bottomTextMesh = bottomTextInstance.GetComponent<TextMeshPro>();
         bottomTextMesh.text = "Bottom";
         bottomTextMesh.fontSize = bottomTextMesh.fontSize * height / 2;
         if (bottomTextMesh.fontSize > 15) bottomTextMesh.fontSize = 15;
+
+        GameObject[] existingFurniture = GameObject.FindGameObjectsWithTag("Furniture");
+        foreach (GameObject obj in existingFurniture)
+        {
+            Destroy(obj);
+        }
+
+        UIManager.currentState = "main";
+
+        GridScreenStatus(false);
+        orbitCameraScript.ResetCamOrbit();
+
     }
 
     void ClearGrid()
@@ -182,5 +220,34 @@ public class GridManager : MonoBehaviour
 
         //return the ascii as a string
         return sb.ToString();
+    }
+
+    //when selecting the width and height
+    public void WidthAdjustButton(int increment)
+    {
+        if (increment > 0 && generateWidth < maxDimensionsSize)
+        {
+            generateWidth += increment;
+        }
+        else if (increment < 0 && generateWidth > minDimensionsSize)
+        {
+            generateWidth += increment;
+        }
+
+        widthText.text = generateWidth.ToString();
+    }
+
+    public void HeightAdjustButton(int increment)
+    {
+        if (increment > 0 && generateHeight < maxDimensionsSize)
+        {
+            generateHeight += increment;
+        }
+        else if (increment < 0 && generateHeight > minDimensionsSize)
+        {
+            generateHeight += increment;
+        }
+
+        heightText.text = generateHeight.ToString();
     }
 }
