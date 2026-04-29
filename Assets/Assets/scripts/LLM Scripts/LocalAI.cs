@@ -4,7 +4,6 @@ using System.Text;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 
 public class LocalAI : MonoBehaviour
 {
@@ -134,7 +133,11 @@ public class LocalAI : MonoBehaviour
             if (firstLetter > 0)
                 aiText = aiText.Substring(firstLetter);
 
-            //adds a bubble to the chatbot and logs the message
+            //adds a timestamp bubble
+            AddTimestampMessage("ai");
+
+            //removes the loading bar and adds the AI message
+            Destroy(currentLoadingObject);
             GameObject aiMsg = Instantiate(aiMessageBubble, contentParent);
             TMP_Text text = aiMsg.GetComponentInChildren<TMP_Text>();
             text.text = string.Join("\n", aiText);
@@ -152,7 +155,7 @@ public class LocalAI : MonoBehaviour
             //adds a timestamp bubble
             AddTimestampMessage("ai");
 
-            //removes the loading bar and adds the AI message
+            //removes the loading bar and adds the AI error message
             Destroy(currentLoadingObject);
             GameObject aiMsg = Instantiate(aiMessageBubble, contentParent);
             TMP_Text text = aiMsg.GetComponentInChildren<TMP_Text>();
