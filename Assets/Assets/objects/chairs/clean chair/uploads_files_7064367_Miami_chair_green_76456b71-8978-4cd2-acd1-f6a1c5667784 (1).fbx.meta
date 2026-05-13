@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9f5b0a5287c9609439b8b485cbdb9b7c
+guid: a7d99cb090ebe0f4ea55f5aaea8e5c37
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,8 +7,18 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Oak Wood
-    second: {fileID: 2100000, guid: de1a9e6820af9a04e90ceb4f02802ae6, type: 2}
+      name: Borracha
+    second: {fileID: 2100000, guid: 9b74e788fd27e4f42ab0a23855682b9f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Metal_
+    second: {fileID: 2100000, guid: 80e7f0bad7790b6449193df634b5dba7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: laqueado brilhoso preto
+    second: {fileID: 2100000, guid: 0b8be4208eec0eb42acfec6320f4927c, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

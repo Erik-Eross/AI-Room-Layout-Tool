@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9f5b0a5287c9609439b8b485cbdb9b7c
+guid: e78ad620856455c429d2dc8b98ed0bf4
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,8 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Oak Wood
-    second: {fileID: 2100000, guid: de1a9e6820af9a04e90ceb4f02802ae6, type: 2}
+      name: Material.028
+    second: {fileID: 2100000, guid: bc64f7f87af99a942a5aefd44bb18997, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: velvet.007
+    second: {fileID: 2100000, guid: cf530b438f7f7fa41a0c5d85f42a6563, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
