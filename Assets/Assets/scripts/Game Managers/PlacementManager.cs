@@ -77,7 +77,7 @@ public class PlacementManager : MonoBehaviour
                     Vector2Int gridHit = gridManager.WorldToGrid(hitPos);
 
                     Vector3 center = gridManager.GetCenterWorld(hit.collider.transform.position, furnitureDetails.w, furnitureDetails.h, gridManager.cellSize);
-                    previewObject.transform.position = center + Vector3.up * 0.5f;
+                    previewObject.transform.position = center;
 
                     //checks if the object can be placed
                     if (gridManager.CanPlace(gridHit.x, gridHit.y, furnitureDetails.w, furnitureDetails.h))
@@ -87,7 +87,15 @@ public class PlacementManager : MonoBehaviour
                         {
                             foreach (Renderer renderer in previewRenderers)
                             {
-                                if (renderer.material != null) renderer.material.color = Color.green;
+                                Material[] mats = renderer.materials;
+
+                                foreach (Material mat in mats)
+                                {
+                                    if (mat != null)
+                                    {
+                                        mat.color = Color.green;
+                                    }
+                                }
                             }
                         }
                     }
@@ -98,7 +106,15 @@ public class PlacementManager : MonoBehaviour
                         {
                             foreach (Renderer renderer in previewRenderers)
                             {
-                                if (renderer.material != null) renderer.material.color = Color.red;
+                                Material[] mats = renderer.materials;
+
+                                foreach (Material mat in mats)
+                                {
+                                    if (mat != null)
+                                    {
+                                        mat.color = Color.red;
+                                    }
+                                }
                             }
                         }
                     }
@@ -145,6 +161,18 @@ public class PlacementManager : MonoBehaviour
         obj.transform.eulerAngles = new Vector3(e.x, snapped, e.z);
     }
 
+    private float GetRelativeYawDegrees(Transform actual, Transform prefab)
+    {
+        Vector3 actualForward = Vector3.ProjectOnPlane(actual.forward, Vector3.up).normalized;
+        Vector3 prefabForward = Vector3.ProjectOnPlane(prefab.forward, Vector3.up).normalized;
+
+        if (actualForward.sqrMagnitude < 0.001f || prefabForward.sqrMagnitude < 0.001f)
+            return 0f;
+
+        float angle = Vector3.SignedAngle(prefabForward, actualForward, Vector3.up);
+        return Mathf.Repeat(angle, 360f);
+    }
+
     void TryPlace()
     {
         //creates a raycast to try to place the object on the grid cell
@@ -169,12 +197,12 @@ public class PlacementManager : MonoBehaviour
 
                 //find the center of the cell and generate the furniture
                 Vector3 center = hitGrid.GetCenterWorld(bottomLeft, fp.w, fp.h, gridManager.cellSize);
-                GameObject placedObject = Instantiate(chosenPrefab, center + Vector3.up * 0.5f, previewObject.transform.rotation);
+                GameObject placedObject = Instantiate(chosenPrefab, center, previewObject.transform.rotation);
 
                 var furnitureDetails = placedObject.GetComponent<FurnitureInfo>();
 
                 //normalize and snap rotation to the configured step displayed as integer degrees
-                float rawY = placedObject.transform.eulerAngles.y;
+                float rawY = GetRelativeYawDegrees(placedObject.transform, chosenPrefab.transform);
                 float snapped = Mathf.Round(rawY / rotationStep) * rotationStep;
                 snapped = Mathf.Repeat(snapped, 360f);
                 int rotInt = Mathf.RoundToInt(snapped);

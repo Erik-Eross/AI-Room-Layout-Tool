@@ -43,21 +43,36 @@ public class EditObjects : MonoBehaviour
                 if (hoveredObject != null && hoveredObject != hit.transform.gameObject)
                 {
                     //the object emission color is reset
-                    foreach (Renderer mat in hoveredObject.GetComponentsInChildren<Renderer>())
+                    foreach (Renderer renderer in hoveredObject.GetComponentsInChildren<Renderer>())
                     {
-                        mat.material.EnableKeyword("_EMISSION");
-                        mat.material.SetColor("_EmissionColor", Color.white * 0f);
+                        Material[] mats = renderer.materials;
+
+                        foreach (Material mat in mats)
+                        {
+                            if (mat != null)
+                            {
+                                mat.EnableKeyword("_EMISSION");
+                                mat.SetColor("_EmissionColor", Color.white * 0f);
+                            }
+                        }
                     }
                 }
 
                 hoveredObject = hit.transform.gameObject;
                 Color emissionColor = Color.white * emissionHighlightAmount;
 
-                foreach (Renderer mat in hit.transform.GetComponentsInChildren<Renderer>())
+                foreach (Renderer renderer in hoveredObject.GetComponentsInChildren<Renderer>())
                 {
-                    //each object with a renderer is given a white emission
-                    mat.material.EnableKeyword("_EMISSION");
-                    mat.material.SetColor("_EmissionColor", emissionColor);
+                    Material[] mats = renderer.materials;
+
+                    foreach (Material mat in mats)
+                    {
+                        if (mat != null)
+                        {
+                            mat.EnableKeyword("_EMISSION");
+                            mat.SetColor("_EmissionColor", emissionColor);
+                        }
+                    }
                 }
 
                 //if you left click the object is selected
@@ -65,11 +80,32 @@ public class EditObjects : MonoBehaviour
                 {
                     if (selectedObject != null)
                     {
-                        foreach (Renderer mat in selectedObject.GetComponentsInChildren<Renderer>())
+                        foreach (Renderer renderer in selectedObject.GetComponentsInChildren<Renderer>())
                         {
-                            //the emission of each renderer is reset when selected
-                            mat.material.EnableKeyword("_EMISSION");
-                            mat.material.SetColor("_EmissionColor", Color.white * 0f);
+                            Material[] mats = renderer.materials;
+
+                            foreach (Material mat in mats)
+                            {
+                                if (mat != null)
+                                {
+                                    mat.EnableKeyword("_EMISSION");
+                                    mat.SetColor("_EmissionColor", Color.white * 0f);
+                                }
+                            }
+                        }
+                    }
+
+                    foreach (Renderer renderer in hoveredObject.GetComponentsInChildren<Renderer>())
+                    {
+                        Material[] mats = renderer.materials;
+
+                        foreach (Material mat in mats)
+                        {
+                            if (mat != null)
+                            {
+                                mat.EnableKeyword("_EMISSION");
+                                mat.SetColor("_EmissionColor", Color.white * 0f);
+                            }
                         }
                     }
 
@@ -87,10 +123,18 @@ public class EditObjects : MonoBehaviour
             {
                 hoveringObject = false;
 
-                foreach (Renderer mat in hoveredObject.GetComponentsInChildren<Renderer>())
+                foreach (Renderer renderer in hoveredObject.GetComponentsInChildren<Renderer>())
                 {
-                    mat.material.EnableKeyword("_EMISSION");
-                    mat.material.SetColor("_EmissionColor", Color.white * 0f);
+                    Material[] mats = renderer.materials;
+
+                    foreach (Material mat in mats)
+                    {
+                        if (mat != null)
+                        {
+                            mat.EnableKeyword("_EMISSION");
+                            mat.SetColor("_EmissionColor", Color.white * 0f);
+                        }
+                    }
                 }
 
                 hoveredObject = null;
@@ -109,10 +153,18 @@ public class EditObjects : MonoBehaviour
             //make the object glow again with emission
             Color emissionColor = Color.white * emissionHighlightAmount;
 
-            foreach (Renderer mat in selectedObject.GetComponentsInChildren<Renderer>())
+            foreach (Renderer renderer in selectedObject.GetComponentsInChildren<Renderer>())
             {
-                mat.material.EnableKeyword("_EMISSION");
-                mat.material.SetColor("_EmissionColor", emissionColor);
+                Material[] mats = renderer.materials;
+
+                foreach (Material mat in mats)
+                {
+                    if (mat != null)
+                    {
+                        mat.EnableKeyword("_EMISSION");
+                        mat.SetColor("_EmissionColor", emissionColor);
+                    }
+                }
             }
         }
     }
@@ -170,7 +222,7 @@ public class EditObjects : MonoBehaviour
         //rotate the object 45 degrees to the left
         if (selectedObject != null)
         {
-            SnapRotatePreview(selectedObject, -rotationStep);
+            SnapRotatePreview(selectedObject, rotationStep);
         }
     }
 
@@ -179,7 +231,7 @@ public class EditObjects : MonoBehaviour
         //rotate the object 45 degrees to the right
         if (selectedObject != null)
         {
-            SnapRotatePreview(selectedObject, rotationStep);
+            SnapRotatePreview(selectedObject, -rotationStep);
         }
     }
 
@@ -190,7 +242,7 @@ public class EditObjects : MonoBehaviour
         {
             FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
             //normalize and snap rotation to the configured step displayed as integer degrees
-            float rawY = selectedObject.transform.eulerAngles.y;
+            float rawY = GetRelativeYawDegrees(selectedObject.transform, furnitureInfo.furniturePrefab.transform);
             float snapped = Mathf.Round(rawY / rotationStep) * rotationStep;
             snapped = Mathf.Repeat(snapped, 360f);
             int rotInt = Mathf.RoundToInt(snapped);
@@ -209,10 +261,18 @@ public class EditObjects : MonoBehaviour
     {
         //handles reseting the UI and deselecting the object
         UIManager.currentState = "main";
-        foreach (Renderer mat in selectedObject.GetComponentsInChildren<Renderer>())
+        foreach (Renderer renderer in selectedObject.GetComponentsInChildren<Renderer>())
         {
-            mat.material.EnableKeyword("_EMISSION");
-            mat.material.SetColor("_EmissionColor", Color.white * 0f);
+            Material[] mats = renderer.materials;
+
+            foreach (Material mat in mats)
+            {
+                if (mat != null)
+                {
+                    mat.EnableKeyword("_EMISSION");
+                    mat.SetColor("_EmissionColor", Color.white * 0f);
+                }
+            }
         }
         selectedObject = null;
         placementManagerScript.chosenPrefab = null;
@@ -232,6 +292,18 @@ public class EditObjects : MonoBehaviour
         snapped = Mathf.Repeat(snapped, 360f);
         Vector3 e = obj.transform.eulerAngles;
         obj.transform.eulerAngles = new Vector3(e.x, snapped, e.z);
+    }
+    
+    private float GetRelativeYawDegrees(Transform actual, Transform prefab)
+    {
+        Vector3 actualForward = Vector3.ProjectOnPlane(actual.forward, Vector3.up).normalized;
+        Vector3 prefabForward = Vector3.ProjectOnPlane(prefab.forward, Vector3.up).normalized;
+
+        if (actualForward.sqrMagnitude < 0.001f || prefabForward.sqrMagnitude < 0.001f)
+            return 0f;
+
+        float angle = Vector3.SignedAngle(prefabForward, actualForward, Vector3.up);
+        return Mathf.Repeat(angle, 360f);
     }
 
     bool IsPointerOverUI()

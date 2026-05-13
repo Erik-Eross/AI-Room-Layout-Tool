@@ -10,9 +10,29 @@ public class LayoutSaveSystem : MonoBehaviour
     public GridManager gridManager;
     public OrbitCamera orbitCameraScript;
 
-    [Header("Prefab Reference")]
-    public GameObject chairPrefab;
-    public GameObject tablePrefab;
+    [Header("Furniture Prefabs")]
+    public List<FurniturePrefabEntry> furniturePrefabs = new List<FurniturePrefabEntry>();
+    private Dictionary<string, GameObject> prefabLookup;
+
+    [Serializable]
+    public class FurniturePrefabEntry
+    {
+        public string furnitureId;
+        public GameObject prefab;
+    }
+
+    private void Awake()
+    {
+        prefabLookup = new Dictionary<string, GameObject>();
+
+        foreach (FurniturePrefabEntry entry in furniturePrefabs)
+        {
+            if (entry.prefab == null || string.IsNullOrEmpty(entry.furnitureId))
+                continue;
+
+            prefabLookup[entry.furnitureId] = entry.prefab;
+        }
+    }
 
     public void SaveLayout(int saveSlot)
     {
@@ -89,26 +109,12 @@ public class LayoutSaveSystem : MonoBehaviour
         //mark which prefab to spawn for each furniture data
         foreach (FurnitureData data in layout.furniture)
         {
-            GameObject prefabToSpawn = null;
-
-            switch (data.type)
-            {
-                case "Chair":
-                    prefabToSpawn = chairPrefab;
-                    break;
-                case "Table":
-                    prefabToSpawn = tablePrefab;
-                    break;
-            }
-
-            //if the prefab is not found an error will debug
-            if (prefabToSpawn == null)
+            if (!prefabLookup.TryGetValue(data.type, out GameObject prefabToSpawn))
             {
                 Debug.LogWarning("No prefab found for furniture type: " + data.type);
                 continue;
             }
 
-            //it will then call this function to spawn furniture
             SpawnFurnitureFromData(prefabToSpawn, data);
         }
 
@@ -136,12 +142,12 @@ public class LayoutSaveSystem : MonoBehaviour
 
             if (int.TryParse(cleaned, out int rotY))
             {
-                rotation = Quaternion.Euler(0, rotY, 0);
+                rotation = Quaternion.Euler(prefab.transform.eulerAngles.x, rotY, prefab.transform.eulerAngles.z);
             }
         }
 
         //we then instantiate the objects and add their data
-        GameObject placedObject = Instantiate(prefab, center + Vector3.up * 0.5f, rotation);
+        GameObject placedObject = Instantiate(prefab, center, rotation);
 
         FurnitureInfo furnitureDetails = placedObject.GetComponent<FurnitureInfo>();
         furnitureDetails.furniturePrefab = prefab;
