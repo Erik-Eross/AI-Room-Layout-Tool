@@ -88,18 +88,21 @@ public class LocalAI : MonoBehaviour
         //structured prompt is given to the AI and sends it to the local server
         string prompt =
             "You are a room layout assistant, and a user is asking a question please be helpful to them it is very important.\n" +
-            "IMPORTANT: keep your response short and simple and to 100 characters MAX.\n" +
+            //"IMPORTANT: simple, helpful and to 1000 characters MAX.\n" +
             "I will provide an ascii map showing where the current furnitures are placed.\n" +
             "Room size: " + roomSize + "\n" +
             "ASCII map:\n" + ascii + "\n" +
             "User Input: " + userInput + "\n\n" +
             "NOTE: the first value of the grid is the top left of the room, all objects base rotation (0 degrees) are facing the bottom of the room by default.\n" +
             "Dont give grid coordinates, instead say words like 'top left' or 'middle', to show positioning.\n" +
-            "IMPORTANT: dont refer to furniture as 'Chair1' or 'Chair5' just say Chair, do this for all furniture.\n" +
-            "Please make the advice actually useful dont make any up you cannot see in the ascii map.\n" +
-            "Dont just say where the furniture is or give context, the user knows what the room looks like, keep the answer JUST your suggestion.\n" +
-            "Give only your answer no context keep it plain english treat it like you are talking to another person just plain english.\n" +
-            "REMEMBER: If the user's question isnt relevant to this task, please mention how it is important to stay relevant.\n" +
+            //"IMPORTANT: dont refer to furniture as 'Chair1' or 'Chair5' just say Chair, do this for all furniture.\n" +
+            "IMPORTANT: describe where the furniture is dont name them Chair1 for example, the user cannot see the numbers." +
+            "Please try to come up with a creative and helpful solution or response, make it something the user can actually use and makes sense." +
+            //"Please make the advice actually useful dont make any up you cannot see in the ascii map.\n" +
+            //"Dont just say where the furniture is or give context, the user knows what the room looks like, keep the answer JUST your suggestion.\n" +
+            //"Give only your answer no context keep it plain english treat it like you are talking to another person just plain english.\n" +
+            "Give only your answer no context keep it plain english.\n" +
+            //"REMEMBER: If the user's question isnt relevant to this task, please mention how it is important to stay relevant.\n" +
             "Answer:\n\n";
         CompletionRequest requestBody = new CompletionRequest
         {
