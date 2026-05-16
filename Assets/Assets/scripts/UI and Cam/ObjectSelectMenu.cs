@@ -15,7 +15,6 @@ public class ObjectSelectMenu : MonoBehaviour
     public GameObject bedSelectMenu;
     public GameObject closetSelectMenu;
     public GameObject couchSelectMenu;
-    public GameObject drawerSelectMenu;
     public GameObject lightSelectMenu;
 
     void Start()
@@ -52,9 +51,6 @@ public class ObjectSelectMenu : MonoBehaviour
                 case "Couch":
                     EnableMenu(couchSelectMenu);
                     break;
-                case "Drawer":
-                    EnableMenu(drawerSelectMenu);
-                    break;
                 case "Light":
                     EnableMenu(lightSelectMenu);
                     break;
@@ -86,7 +82,6 @@ public class ObjectSelectMenu : MonoBehaviour
         bedSelectMenu.SetActive(false);
         closetSelectMenu.SetActive(false);
         couchSelectMenu.SetActive(false);
-        drawerSelectMenu.SetActive(false);
         lightSelectMenu.SetActive(false);
 
         if (obj != null) { obj.SetActive(true); }

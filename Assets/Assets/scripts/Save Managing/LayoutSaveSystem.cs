@@ -130,8 +130,19 @@ public class LayoutSaveSystem : MonoBehaviour
 
         Vector3 bottomLeft = hitGrid.transform.position;
         FurnitureInfo fp = prefab.GetComponent<FurnitureInfo>();
+        int rotationDegrees = 0;
 
-        Vector3 center = gridManager.GetCenterWorld(bottomLeft, fp.w, fp.h, gridManager.cellSize);
+        if (!string.IsNullOrEmpty(data.rotation))
+        {
+            string cleaned = data.rotation.Replace(", Rotation:", "").Replace("°", "").Trim();
+            if (int.TryParse(cleaned, out int parsedRotation))
+            {
+                rotationDegrees = Mathf.RoundToInt(Mathf.Repeat(parsedRotation, 360f));
+            }
+        }
+
+        Vector2Int rotatedSize = FurnitureInfo.GetRotatedSize(fp.w, fp.h, rotationDegrees);
+        Vector3 center = gridManager.GetCenterWorld(bottomLeft, rotatedSize.x, rotatedSize.y, gridManager.cellSize);
 
         Quaternion rotation = Quaternion.identity;
 
@@ -156,11 +167,11 @@ public class LayoutSaveSystem : MonoBehaviour
         furnitureDetails.rotation = data.rotation;
         furnitureDetails.objectPlaced = true;
 
-        furnitureDetails.AssignInstanceName();
-        placedObject.name = furnitureDetails.symbol;
+        //furnitureDetails.AssignInstanceName();
+        //placedObject.name = furnitureDetails.symbol;
 
         //fill in the grid manager with it
-        gridManager.Fill(data.gridX, data.gridY, furnitureDetails.w, furnitureDetails.h, furnitureDetails.symbol, furnitureDetails.rotation);
+        gridManager.Fill(data.gridX, data.gridY, rotatedSize.x, rotatedSize.y, furnitureDetails.furnitureId, furnitureDetails.rotation);
     }
 }
 

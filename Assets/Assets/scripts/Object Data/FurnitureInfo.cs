@@ -6,7 +6,6 @@ public class FurnitureInfo : MonoBehaviour
 {
     [Header("Setup For The Furniture")]
     public string furnitureId;
-    public string symbol;
     public int w;
     public int h;
     public int xPos;
@@ -17,43 +16,36 @@ public class FurnitureInfo : MonoBehaviour
     private float timePlaced;
     private bool loopStopper;
 
+    public static Vector2Int GetRotatedSize(int width, int height, float yawDegrees)
+    {
+        int normalized = Mathf.RoundToInt(Mathf.Repeat(yawDegrees, 360f));
+        int remainder = normalized % 180;
+        if (remainder < 0) remainder += 180;
+        if (remainder == 90)
+        {
+            return new Vector2Int(height, width);
+        }
+        return new Vector2Int(width, height);
+    }
+
+    public static int GetRotationDegrees(string rotation)
+    {
+        if (string.IsNullOrWhiteSpace(rotation)) return 0;
+        string cleaned = rotation.Replace(", Rotation:", "").Replace("°", "").Trim();
+        if (int.TryParse(cleaned, out int result))
+        {
+            return Mathf.RoundToInt(Mathf.Repeat(result, 360f));
+        }
+        return 0;
+    }
+
+    public Vector2Int GetRotatedSize()
+    {
+        return GetRotatedSize(w, h, transform.eulerAngles.y);
+    }
+
     [Header("Furniture Prefab")]
     public GameObject furniturePrefab;
-
-    //this is called when the object has been placed
-    public void AssignInstanceName()
-    {
-        GameObject[] allFurniture = GameObject.FindGameObjectsWithTag("Furniture");
-        Dictionary<string, int> furnitureCount = new Dictionary<string, int> { {"Chairs", 0}, {"Tables", 0} };
-
-        //counts all the furnitures and gives it the appropriate symbol
-        foreach(GameObject furniture in allFurniture)
-        {
-            var details = furniture.GetComponent<FurnitureInfo>();
-            if(details.objectPlaced)
-            {
-                if(details.symbol == "Chair" || details.symbol.StartsWith("Chair"))
-                {
-                    furnitureCount["Chairs"] ++;
-                }
-                else if(details.symbol == "Table" || details.symbol.StartsWith("Table"))
-                {
-                    furnitureCount["Tables"] ++;
-                }
-            }
-        }
-
-        //assigns the furniture's symbol
-        switch(symbol)
-        {
-            case "Chair":
-                symbol = "Chair" + furnitureCount["Chairs"].ToString();
-                break;
-            case "Table":
-                symbol = "Table" + furnitureCount["Tables"].ToString();
-                break;
-        }
-    }
 
     void Update()
     {

@@ -177,9 +177,12 @@ public class EditObjects : MonoBehaviour
             //We reset the UI and the grid to account for the object being moved
             UIManager.currentState = "main";
             FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
-            furnitureInfo.AssignInstanceName();
+            Vector2Int clearedSize = FurnitureInfo.GetRotatedSize(
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().w,
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().h,
+                selectedObject.transform.eulerAngles.y);
             gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
-                furnitureInfo.w, furnitureInfo.h, ".", "");
+                clearedSize.x, clearedSize.y, ".", "");
             placementManagerScript.chosenPrefab = selectedObject.GetComponent<FurnitureInfo>().furniturePrefab;
             placementManagerScript.chosenPrefab.transform.rotation = selectedObject.transform.rotation;
             hoveringObject = false;
@@ -200,8 +203,12 @@ public class EditObjects : MonoBehaviour
         {
             //if an object is selected, it will be deleted and the grid cell will be reset
             FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
+            Vector2Int clearedSize = FurnitureInfo.GetRotatedSize(
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().w,
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().h,
+                selectedObject.transform.eulerAngles.y);
             gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
-                furnitureInfo.w, furnitureInfo.h, ".", "");
+                clearedSize.x, clearedSize.y, ".", "");
             hoveringObject = false;
             Destroy(selectedObject);
             Deselect();
@@ -212,7 +219,7 @@ public class EditObjects : MonoBehaviour
             foreach (GameObject furniture in allFurniture)
             {
                 var details = furniture.GetComponent<FurnitureInfo>();
-                details.AssignInstanceName();
+                //details.AssignInstanceName();
             }
         }
     }
@@ -223,6 +230,7 @@ public class EditObjects : MonoBehaviour
         if (selectedObject != null)
         {
             SnapRotatePreview(selectedObject, rotationStep);
+            RepositionSelectedObjectOnGrid();
         }
     }
 
@@ -232,6 +240,7 @@ public class EditObjects : MonoBehaviour
         if (selectedObject != null)
         {
             SnapRotatePreview(selectedObject, -rotationStep);
+            RepositionSelectedObjectOnGrid();
         }
     }
 
@@ -241,6 +250,13 @@ public class EditObjects : MonoBehaviour
         if (selectedObject != null)
         {
             FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
+            Vector2Int oldSize = FurnitureInfo.GetRotatedSize(
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().w,
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().h,
+                FurnitureInfo.GetRotationDegrees(furnitureInfo.rotation));
+            int oldRotationDegrees = FurnitureInfo.GetRotationDegrees(furnitureInfo.rotation);
+            string previousRotation = furnitureInfo.rotation;
+
             //normalize and snap rotation to the configured step displayed as integer degrees
             float rawY = GetRelativeYawDegrees(selectedObject.transform, furnitureInfo.furniturePrefab.transform);
             float snapped = Mathf.Round(rawY / rotationStep) * rotationStep;
@@ -249,9 +265,35 @@ public class EditObjects : MonoBehaviour
             if (rotInt != 0) { furnitureInfo.rotation = ", Rotation: " + rotInt.ToString() + " °"; }
             else { furnitureInfo.rotation = ""; }
 
+            Vector2Int newSize = FurnitureInfo.GetRotatedSize(
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().w,
+                furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().h,
+                snapped);
+
+            //clear the old footprint before testing the new one
+            gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
+                oldSize.x, oldSize.y, ".", "");
+
+            if (!gridManagerScript.CanPlace(furnitureInfo.xPos, furnitureInfo.yPos, newSize.x, newSize.y))
+            {
+                //restore previous rotation and footprint on failure
+                furnitureInfo.rotation = previousRotation;
+                selectedObject.transform.eulerAngles = new Vector3(
+                    selectedObject.transform.eulerAngles.x,
+                    oldRotationDegrees,
+                    selectedObject.transform.eulerAngles.z);
+                RepositionSelectedObjectOnGrid();
+                gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
+                    oldSize.x, oldSize.y, furnitureInfo.furnitureId, furnitureInfo.rotation);
+                Debug.LogWarning("Rotate failed: object cannot fit after rotation.");
+                return;
+            }
+
+            RepositionSelectedObjectOnGrid();
+
             //then fill in the grid and deselect the object
             gridManagerScript.Fill(furnitureInfo.xPos, furnitureInfo.yPos,
-                furnitureInfo.w, furnitureInfo.h, furnitureInfo.symbol, furnitureInfo.rotation);
+                newSize.x, newSize.y, furnitureInfo.furnitureId, furnitureInfo.rotation);
             hoveringObject = false;
             Deselect();
         }
@@ -292,6 +334,18 @@ public class EditObjects : MonoBehaviour
         snapped = Mathf.Repeat(snapped, 360f);
         Vector3 e = obj.transform.eulerAngles;
         obj.transform.eulerAngles = new Vector3(e.x, snapped, e.z);
+    }
+
+    private void RepositionSelectedObjectOnGrid()
+    {
+        if (selectedObject == null) return;
+        FurnitureInfo furnitureInfo = selectedObject.GetComponent<FurnitureInfo>();
+        Vector2Int rotatedSize = FurnitureInfo.GetRotatedSize(
+            furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().w,
+            furnitureInfo.furniturePrefab.GetComponent<FurnitureInfo>().h,
+            selectedObject.transform.eulerAngles.y);
+        Vector3 bottomLeft = gridManagerScript.grid[furnitureInfo.xPos, furnitureInfo.yPos].transform.position;
+        selectedObject.transform.position = gridManagerScript.GetCenterWorld(bottomLeft, rotatedSize.x, rotatedSize.y, gridManagerScript.cellSize);
     }
     
     private float GetRelativeYawDegrees(Transform actual, Transform prefab)

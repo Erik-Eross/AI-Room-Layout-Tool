@@ -47,13 +47,14 @@ public class GridManager : MonoBehaviour
     {
         //check if the cell is free by checking the symbol
         if (x < 0 || y < 0 || x >= width || y >= height) return false;
-        return cells[x, y] == ".";
+        string cell = cells[x, y];
+        return cell == "." || cell == "[ . ]";
     }
 
     void SetCell(int x, int y, string symbol)
     {
         //set the cell to the symbol of the object
-        cells[x, y] = symbol;
+        cells[x, y] = "[ " + symbol + " ]";
     }
 
     public bool CanPlace(int x, int y, int w, int h)
@@ -69,8 +70,8 @@ public class GridManager : MonoBehaviour
     public void Fill(int x, int y, int w, int h, string symbol, string rotation)
     {
         string token;
-        if (rotation == "Rotation: 0°") { token = symbol.ToString(); }
-        else { token = symbol + rotation; }
+
+        token = symbol.ToString();
 
         //fill the cells with the symbol of the object
         for (int ix = 0; ix < w; ix++)
@@ -128,7 +129,7 @@ public class GridManager : MonoBehaviour
 
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
-                cells[x, y] = ".";
+                SetCell(x, y, ".");
 
         grid = new GameObject[width, height];
 

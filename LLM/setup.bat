@@ -37,7 +37,7 @@ if not exist "llama-server.exe" (
 )
 
 REM ---- Download model ----
-set MODEL_URL=https://huggingface.co/bartowski/Qwen2.5-14B-Instruct-GGUF/resolve/main/Qwen2.5-14B-Instruct-Q4_K_M.gguf?download=true
+set MODEL_URL=https://huggingface.co/about0/qwen-chat-GGUF-14B/resolve/main/qwen-chat-14B-Q4_K_M.gguf?download=true
 set MODEL_PATH=models\model.gguf
 set MIN_BYTES=8000000000
 

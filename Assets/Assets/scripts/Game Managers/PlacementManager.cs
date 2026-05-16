@@ -75,12 +75,13 @@ public class PlacementManager : MonoBehaviour
                     Vector3 hitPos = hit.point;
                     var furnitureDetails = chosenPrefab.GetComponent<FurnitureInfo>();
                     Vector2Int gridHit = gridManager.WorldToGrid(hitPos);
+                    Vector2Int previewSize = FurnitureInfo.GetRotatedSize(furnitureDetails.w, furnitureDetails.h, previewObject.transform.eulerAngles.y);
 
-                    Vector3 center = gridManager.GetCenterWorld(hit.collider.transform.position, furnitureDetails.w, furnitureDetails.h, gridManager.cellSize);
+                    Vector3 center = gridManager.GetCenterWorld(hit.collider.transform.position, previewSize.x, previewSize.y, gridManager.cellSize);
                     previewObject.transform.position = center;
 
                     //checks if the object can be placed
-                    if (gridManager.CanPlace(gridHit.x, gridHit.y, furnitureDetails.w, furnitureDetails.h))
+                    if (gridManager.CanPlace(gridHit.x, gridHit.y, previewSize.x, previewSize.y))
                     {
                         //show green preview of the object
                         if (previewRenderers != null)
@@ -188,15 +189,17 @@ public class PlacementManager : MonoBehaviour
             Vector3 hitPos = hit.point;
             Vector2Int gridHit = hitGrid.WorldToGrid(hitPos);
             var chosenFurnitureDetails = chosenPrefab.GetComponent<FurnitureInfo>();
+            float placementYaw = previewObject != null ? previewObject.transform.eulerAngles.y : chosenPrefab.transform.eulerAngles.y;
+            Vector2Int placementSize = FurnitureInfo.GetRotatedSize(chosenFurnitureDetails.w, chosenFurnitureDetails.h, placementYaw);
 
             //if the grid is free, then we will instantiate the furniture onto the grid cell
-            if (hitGrid.CanPlace(gridHit.x, gridHit.y, chosenFurnitureDetails.w, chosenFurnitureDetails.h))
+            if (hitGrid.CanPlace(gridHit.x, gridHit.y, placementSize.x, placementSize.y))
             {
                 Vector3 bottomLeft = hit.collider.transform.position;
                 var fp = chosenPrefab.GetComponent<FurnitureInfo>();
 
                 //find the center of the cell and generate the furniture
-                Vector3 center = hitGrid.GetCenterWorld(bottomLeft, fp.w, fp.h, gridManager.cellSize);
+                Vector3 center = hitGrid.GetCenterWorld(bottomLeft, placementSize.x, placementSize.y, gridManager.cellSize);
                 GameObject placedObject = Instantiate(chosenPrefab, center, previewObject.transform.rotation);
 
                 var furnitureDetails = placedObject.GetComponent<FurnitureInfo>();
@@ -212,12 +215,9 @@ public class PlacementManager : MonoBehaviour
                 furnitureDetails.xPos = gridHit.x;
                 furnitureDetails.yPos = gridHit.y;
                 furnitureDetails.objectPlaced = true;
-                //give a unique symbol to the placed object
-                furnitureDetails.AssignInstanceName();
-                placedObject.name = furnitureDetails.symbol;
 
                 //fill the grid ascii and debug it to the console
-                hitGrid.Fill(gridHit.x, gridHit.y, furnitureDetails.w, furnitureDetails.h, furnitureDetails.symbol, furnitureDetails.rotation);
+                hitGrid.Fill(gridHit.x, gridHit.y, placementSize.x, placementSize.y, furnitureDetails.furnitureId, furnitureDetails.rotation);
                 Debug.Log("\n" + hitGrid.ToAscii());
 
                 if (previewObject != null) Destroy(previewObject);
