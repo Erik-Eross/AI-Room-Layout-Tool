@@ -26,11 +26,6 @@ public class SettingsManager : MonoBehaviour
         settingsToggle = !settingsToggle;
     }
 
-    public void SettingsButton()
-    {
-        //settings
-    }
-
     public void QuitButton()
     {
         Application.Quit();

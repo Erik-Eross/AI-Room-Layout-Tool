@@ -16,6 +16,10 @@ public class FurnitureInfo : MonoBehaviour
     private float timePlaced;
     private bool loopStopper;
 
+    [Header("Furniture Prefab")]
+    public GameObject furniturePrefab;
+
+    //return the furniture size after applying current yaw rotation.
     public static Vector2Int GetRotatedSize(int width, int height, float yawDegrees)
     {
         int normalized = Mathf.RoundToInt(Mathf.Repeat(yawDegrees, 360f));
@@ -28,6 +32,7 @@ public class FurnitureInfo : MonoBehaviour
         return new Vector2Int(width, height);
     }
 
+    //parse the rotation string and return a normalized degree value.
     public static int GetRotationDegrees(string rotation)
     {
         if (string.IsNullOrWhiteSpace(rotation)) return 0;
@@ -39,21 +44,19 @@ public class FurnitureInfo : MonoBehaviour
         return 0;
     }
 
+    //compute this furniture instance's rotated size from its transform.
     public Vector2Int GetRotatedSize()
     {
         return GetRotatedSize(w, h, transform.eulerAngles.y);
     }
 
-    [Header("Furniture Prefab")]
-    public GameObject furniturePrefab;
-
     void Update()
     {
         //makes the object interactable afer a short delay once its placed
-        if(objectPlaced && !loopStopper)
+        if (objectPlaced && !loopStopper)
         {
             timePlaced += Time.deltaTime;
-            if(timePlaced > 0.5f)
+            if (timePlaced > 0.5f)
             {
                 loopStopper = true;
                 canInteract = true;

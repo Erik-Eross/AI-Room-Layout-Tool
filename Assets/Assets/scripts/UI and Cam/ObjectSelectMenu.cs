@@ -67,7 +67,7 @@ public class ObjectSelectMenu : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
-            //if NOT clicking on UI
+            //if not clicking on UI
             if (!EventSystem.current.IsPointerOverGameObject())
             {
                 menuType = "";

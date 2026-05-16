@@ -18,16 +18,8 @@ public class PlacementManager : MonoBehaviour
     public GameObject rotateButtonsUI;
 
     [Header("Set Values")]
-    //public float cellSize;
     public LayerMask gridLayer;
     public float rotationStep = 45f;
-
-    // [Header("UI")]
-    // public GameObject chairObject;
-    // public GameObject tableObject;
-
-    // [Header("AI Script Reference")]
-    // public LocalAI localAIScript;
 
     void Update()
     {

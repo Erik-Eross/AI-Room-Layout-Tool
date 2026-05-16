@@ -97,11 +97,11 @@ public class LocalAI : MonoBehaviour
         "Do not use headings, bullet points, markdown, role labels, or special tokens. " +
         "Do not mention that you are an AI. " +
         "Do not include reasoning, analysis, explanation, or meta commentary. " +
-        //"Do not make anything up about unseen furniture, windows, or room features you cannot see. " +
-        //"Only talk about items and features that are actually shown in the room map.\n\n" +
-        
+
         "Room size:\n" + roomSize + "\n\n" +
+        "Front\n" +
         "Furniture map:\n" + ascii + "\n\n" +
+        "Back\n\n" +
         "Question:\n" + userInput + "\n\n" +
         "Answer:\n";
         CompletionRequest requestBody = new CompletionRequest

@@ -219,7 +219,6 @@ public class EditObjects : MonoBehaviour
             foreach (GameObject furniture in allFurniture)
             {
                 var details = furniture.GetComponent<FurnitureInfo>();
-                //details.AssignInstanceName();
             }
         }
     }
@@ -336,6 +335,7 @@ public class EditObjects : MonoBehaviour
         obj.transform.eulerAngles = new Vector3(e.x, snapped, e.z);
     }
 
+    //move the selected object so it stays centered on its current grid footprint
     private void RepositionSelectedObjectOnGrid()
     {
         if (selectedObject == null) return;
@@ -347,7 +347,8 @@ public class EditObjects : MonoBehaviour
         Vector3 bottomLeft = gridManagerScript.grid[furnitureInfo.xPos, furnitureInfo.yPos].transform.position;
         selectedObject.transform.position = gridManagerScript.GetCenterWorld(bottomLeft, rotatedSize.x, rotatedSize.y, gridManagerScript.cellSize);
     }
-    
+
+    //compute the Y-axis rotation difference between the actual object and its prefab forward direction
     private float GetRelativeYawDegrees(Transform actual, Transform prefab)
     {
         Vector3 actualForward = Vector3.ProjectOnPlane(actual.forward, Vector3.up).normalized;

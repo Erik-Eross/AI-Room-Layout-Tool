@@ -166,7 +166,7 @@ public class GridManager : MonoBehaviour
             threeDTextPrefab.transform.rotation, transform);
 
         TextMeshPro topTextMesh = topTextInstance.GetComponent<TextMeshPro>();
-        topTextMesh.text = "Top";
+        topTextMesh.text = "Front";
         //scaling font size based on cell size
         topTextMesh.fontSize = topTextMesh.fontSize * height / 2;
         if (topTextMesh.fontSize > 15) topTextMesh.fontSize = 15;
@@ -177,7 +177,7 @@ public class GridManager : MonoBehaviour
             threeDTextPrefab.transform.rotation, transform);
 
         TextMeshPro bottomTextMesh = bottomTextInstance.GetComponent<TextMeshPro>();
-        bottomTextMesh.text = "Bottom";
+        bottomTextMesh.text = "Back";
         bottomTextMesh.fontSize = bottomTextMesh.fontSize * height / 2;
         if (bottomTextMesh.fontSize > 15) bottomTextMesh.fontSize = 15;
 

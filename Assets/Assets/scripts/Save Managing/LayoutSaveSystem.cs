@@ -167,9 +167,6 @@ public class LayoutSaveSystem : MonoBehaviour
         furnitureDetails.rotation = data.rotation;
         furnitureDetails.objectPlaced = true;
 
-        //furnitureDetails.AssignInstanceName();
-        //placedObject.name = furnitureDetails.symbol;
-
         //fill in the grid manager with it
         gridManager.Fill(data.gridX, data.gridY, rotatedSize.x, rotatedSize.y, furnitureDetails.furnitureId, furnitureDetails.rotation);
     }

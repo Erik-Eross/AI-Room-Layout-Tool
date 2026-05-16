@@ -1,4 +1,0 @@
-Things to get done:
-- make walls and the ones in front of the camera to disappear or fade
-- stop the prefabs from rotating (optional)
-- object rotations for ones that arent 1x1 or 2x2 etc are completely broken
