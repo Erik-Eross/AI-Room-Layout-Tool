@@ -15,6 +15,7 @@ public class LocalAI : MonoBehaviour
     [Header("UI References")]
     public TMP_InputField inputField;
     public Animator chatbotOpenAnim;
+    public GameObject AIInfoPanel;
 
     [Header("Message Bubbles")]
     public Transform contentParent;
@@ -49,6 +50,11 @@ public class LocalAI : MonoBehaviour
     public void OpenChatOpenStatus(bool isOpen)
     {
         chatbotOpenAnim.SetBool("isOpen", isOpen);
+    }
+
+    public void ToggleAIInfoPanel()
+    {
+        AIInfoPanel.SetActive(!AIInfoPanel.activeSelf);
     }
 
     //this will be called when the user presses the button for assistance
